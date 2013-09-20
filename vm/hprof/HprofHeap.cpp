@@ -122,7 +122,7 @@ static hprof_basic_type primitiveToBasicTypeAndSize(PrimitiveType prim,
 int hprofMarkRootObject(hprof_context_t *ctx, const Object *obj, jobject jniObj)
 {
     hprof_record_t *rec = &ctx->curRec;
-    int err;
+    int err = 0;
     hprof_heap_tag_t heapTag = (hprof_heap_tag_t)ctx->gcScanState;
 
     if (heapTag == 0) {
