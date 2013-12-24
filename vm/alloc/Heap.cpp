@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2008 The Android Open Source Project
  *
@@ -40,13 +39,6 @@
 
 #ifdef HAVE_ANDROID_OS
 #include "cutils/properties.h"
-
-static int debugalloc()
-{
-    char value[PROPERTY_VALUE_MAX];
-    property_get("dalvik.vm.debug.alloc", value, "1");
-    return atoi(value);
-}
 #endif
 
 static const GcSpec kGcForMallocSpec = {
@@ -249,9 +241,6 @@ static void *tryMalloc(size_t size)
 //TODO: may want to grow a little bit more so that the amount of free
 //      space is equal to the old free space + the utilization slop for
 //      the new allocation.
-#ifdef HAVE_ANDROID_OS
-        if (debugalloc())
-#endif
         LOGI_HEAP("Grow heap (frag case) to "
                 "%zu.%03zuMB for %zu-byte allocation",
                 FRACTIONAL_MB(newHeapSize), size);
@@ -727,9 +716,6 @@ void dvmCollectGarbageInternal(const GcSpec* spec)
         u4 markSweepTime = dirtyEnd - rootStart;
         u4 gcTime = gcEnd - rootStart;
         bool isSmall = numBytesFreed > 0 && numBytesFreed < 1024;
-#ifdef HAVE_ANDROID_OS
-        if (debugalloc())
-#endif
         ALOGD("%s freed %s%zdK, %d%% free %zdK/%zdK, paused %ums, total %ums",
              spec->reason,
              isSmall ? "<" : "",
@@ -742,9 +728,6 @@ void dvmCollectGarbageInternal(const GcSpec* spec)
         u4 dirtyTime = dirtyEnd - dirtyStart;
         u4 gcTime = gcEnd - rootStart;
         bool isSmall = numBytesFreed > 0 && numBytesFreed < 1024;
-#ifdef HAVE_ANDROID_OS
-        if (debugalloc())
-#endif
         ALOGD("%s freed %s%zdK, %d%% free %zdK/%zdK, paused %ums+%ums, total %ums",
              spec->reason,
              isSmall ? "<" : "",
@@ -802,11 +785,7 @@ bool dvmWaitForConcurrentGcToComplete()
         dvmChangeStatus(self, oldStatus);
     }
     u4 end = dvmGetRelativeTimeMsec();
-#ifdef HAVE_ANDROID_OS
-    if (end - start > 0 && debugalloc()) {
-#else
     if (end - start > 0) {
-#endif
         ALOGD("WAIT_FOR_CONCURRENT_GC blocked %ums", end - start);
     }
     ATRACE_END();
